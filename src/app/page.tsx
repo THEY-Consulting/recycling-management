@@ -1,65 +1,99 @@
-import Image from "next/image";
+'use client';
+
+import { Container, Typography, Box, Grid, Card, CardContent, Button } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import PersonIcon from '@mui/icons-material/Person';
+import BusinessIcon from '@mui/icons-material/Business';
+import RecyclingIcon from '@mui/icons-material/Recycling';
 
 export default function Home() {
+  const router = useRouter();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <Container maxWidth="lg" sx={{ py: 8 }}>
+      <Box sx={{ textAlign: 'center', mb: 6 }}>
+        <RecyclingIcon sx={{ fontSize: 80, color: 'primary.main', mb: 2 }} />
+        <Typography variant="h2" component="h1" gutterBottom>
+          Welcome to the Recycling Management System
+        </Typography>
+        <Typography variant="h6" color="text.secondary" paragraph>
+          Choose your interface to get started
+        </Typography>
+      </Box>
+
+      <Grid container spacing={4} sx={{ mt: 4 }}>
+        <Grid item xs={12} md={6}>
+          <Card
+            sx={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              transition: 'transform 0.2s',
+              '&:hover': {
+                transform: 'translateY(-8px)',
+                boxShadow: 6,
+              },
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 4 }}>
+              <PersonIcon sx={{ fontSize: 60, color: 'secondary.main', mb: 2 }} />
+              <Typography variant="h4" component="h2" gutterBottom>
+                Customer Interface
+              </Typography>
+              <Typography variant="body1" color="text.secondary" paragraph>
+                Book appointments, view facility utilization, and get your personalized waste disposal route.
+              </Typography>
+              <Box sx={{ mt: 4 }}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  size="large"
+                  onClick={() => router.push('/customer/booking')}
+                  fullWidth
+                >
+                  Go to Customer Portal
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Card
+            sx={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              transition: 'transform 0.2s',
+              '&:hover': {
+                transform: 'translateY(-8px)',
+                boxShadow: 6,
+              },
+            }}
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            <CardContent sx={{ flexGrow: 1, textAlign: 'center', p: 4 }}>
+              <BusinessIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+              <Typography variant="h4" component="h2" gutterBottom>
+                Management Interface
+              </Typography>
+              <Typography variant="body1" color="text.secondary" paragraph>
+                View statistics, monitor waste levels, and schedule container maintenance.
+              </Typography>
+              <Box sx={{ mt: 4 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  onClick={() => router.push('/management/dashboard')}
+                  fullWidth
+                >
+                  Go to Management Portal
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Container>
   );
 }
