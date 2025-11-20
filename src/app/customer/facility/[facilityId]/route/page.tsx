@@ -217,8 +217,8 @@ export default function RoutePage() {
                     );
                   })}
 
-                  {/* Draw route lines */}
-                  {route.length > 1 && (
+                  {/* Draw route lines with arrows */}
+                  {route.length > 0 && (
                     <svg
                       style={{
                         position: 'absolute',
@@ -229,15 +229,29 @@ export default function RoutePage() {
                         pointerEvents: 'none',
                       }}
                     >
+                      {/* Define arrow marker */}
+                      <defs>
+                        <marker
+                          id="arrowhead"
+                          markerWidth="10"
+                          markerHeight="10"
+                          refX="9"
+                          refY="3"
+                          orient="auto"
+                        >
+                          <polygon points="0 0, 10 3, 0 6" fill="#164656" />
+                        </marker>
+                      </defs>
+
                       {/* Line from entrance to first container */}
                       <line
                         x1={`${(layout.entrance.x / layout.width) * 100}%`}
                         y1={`${(layout.entrance.y / layout.height) * 100}%`}
                         x2={`${(route[0].position.x / layout.width) * 100}%`}
                         y2={`${(route[0].position.y / layout.height) * 100}%`}
-                        stroke="#000"
+                        stroke="#164656"
                         strokeWidth="3"
-                        strokeDasharray="5,5"
+                        markerEnd="url(#arrowhead)"
                       />
 
                       {/* Lines between containers */}
@@ -251,9 +265,9 @@ export default function RoutePage() {
                             y1={`${(wasteType.position.y / layout.height) * 100}%`}
                             x2={`${(next.position.x / layout.width) * 100}%`}
                             y2={`${(next.position.y / layout.height) * 100}%`}
-                            stroke="#000"
+                            stroke="#164656"
                             strokeWidth="3"
-                            strokeDasharray="5,5"
+                            markerEnd="url(#arrowhead)"
                           />
                         );
                       })}
@@ -264,9 +278,9 @@ export default function RoutePage() {
                         y1={`${(route[route.length - 1].position.y / layout.height) * 100}%`}
                         x2={`${(layout.exit.x / layout.width) * 100}%`}
                         y2={`${(layout.exit.y / layout.height) * 100}%`}
-                        stroke="#000"
+                        stroke="#164656"
                         strokeWidth="3"
-                        strokeDasharray="5,5"
+                        markerEnd="url(#arrowhead)"
                       />
                     </svg>
                   )}

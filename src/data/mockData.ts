@@ -15,6 +15,7 @@ export const mockRecyclingCenters: RecyclingCenter[] = [
     id: 'center-1',
     name: 'Central Recycling Facility',
     address: '123 Green Street, Eco City, 12345',
+    coordinates: { lat: 53.5511, lng: 9.9937 }, // Hamburg city center
     slotDuration: 30,
     maxConcurrentVisitors: 10,
     openingHours: [
@@ -128,6 +129,7 @@ export const mockRecyclingCenters: RecyclingCenter[] = [
     id: 'center-2',
     name: 'North Side Recycling Center',
     address: '456 Eco Avenue, Green Valley, 54321',
+    coordinates: { lat: 53.5753, lng: 10.0153 }, // Hamburg north
     slotDuration: 30,
     maxConcurrentVisitors: 8,
     openingHours: [
@@ -216,6 +218,7 @@ export const mockRecyclingCenters: RecyclingCenter[] = [
     id: 'center-3',
     name: 'Westside Waste Management',
     address: '789 Sustainability Road, Eco Park, 67890',
+    coordinates: { lat: 53.5488, lng: 9.9681 }, // Hamburg west
     slotDuration: 45,
     maxConcurrentVisitors: 12,
     openingHours: [

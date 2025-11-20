@@ -25,6 +25,7 @@ import {
   Paper,
   Chip,
   IconButton,
+  LinearProgress,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -193,194 +194,220 @@ export default function MaintenancePage() {
         </Alert>
       )}
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={5}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Schedule New Maintenance
-              </Typography>
-
-              <Box sx={{ mt: 3 }}>
-                <FormControl fullWidth sx={{ mb: 3 }}>
-                  <InputLabel>Waste Container</InputLabel>
-                  <Select
-                    value={selectedWasteType}
-                    label="Waste Container"
-                    onChange={(e) => setSelectedWasteType(e.target.value)}
-                  >
-                    {facilityWasteTypes.map(type => (
-                      <MenuItem key={type.id} value={type.id}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Box
-                            sx={{
-                              width: 20,
-                              height: 20,
-                              borderRadius: '50%',
-                              backgroundColor: type.color,
-                            }}
-                          />
-                          {type.name} ({type.currentLevel}% full)
-                        </Box>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <TextField
-                  fullWidth
-                  label="Start Date & Time"
-                  type="datetime-local"
-                  value={startDateTime}
-                  onChange={(e) => setStartDateTime(e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  sx={{ mb: 3 }}
-                />
-
-                <TextField
-                  fullWidth
-                  label="Duration (hours)"
-                  type="number"
-                  value={duration}
-                  onChange={(e) => setDuration(parseFloat(e.target.value) || 2)}
-                  inputProps={{ min: 0.5, max: 8, step: 0.5 }}
-                  sx={{ mb: 3 }}
-                />
-
-                <Alert severity="info" sx={{ mb: 3 }}>
-                  During maintenance, customer bookings will be blocked for this time period.
-                </Alert>
-
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  fullWidth
-                  startIcon={<AddIcon />}
-                  onClick={handleScheduleMaintenance}
-                >
-                  Schedule Maintenance
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-
-          <Card sx={{ mt: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Container Status
-              </Typography>
-              {facilityWasteTypes
-                .sort((a, b) => b.currentLevel - a.currentLevel)
-                .map(type => (
-                  <Box key={type.id} sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box
-                          sx={{
-                            width: 16,
-                            height: 16,
-                            borderRadius: '50%',
-                            backgroundColor: type.color,
-                          }}
-                        />
-                        <Typography variant="body2">{type.name}</Typography>
-                      </Box>
+      {/* Container Status - First Row */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Current Waste Container Status
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 3, mt: 2, flexWrap: 'wrap' }}>
+            {facilityWasteTypes.map(type => (
+              <Box
+                key={type.id}
+                sx={{
+                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: `1 1 calc(${100 / facilityWasteTypes.length}% - 24px)` },
+                  minWidth: 0
+                }}
+              >
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                        {type.name}
+                      </Typography>
                       <Chip
                         label={`${type.currentLevel}%`}
                         size="small"
                         color={type.currentLevel > 80 ? 'error' : type.currentLevel > 50 ? 'warning' : 'success'}
                       />
                     </Box>
-                  </Box>
-                ))}
-            </CardContent>
-          </Card>
-        </Grid>
+                    <LinearProgress
+                      variant="determinate"
+                      value={type.currentLevel}
+                      sx={{
+                        height: 10,
+                        borderRadius: 5,
+                        backgroundColor: '#e0e0e0',
+                        '& .MuiLinearProgress-bar': {
+                          backgroundColor: type.color,
+                        },
+                      }}
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                      <Typography variant="caption" color="text.secondary">
+                        {((type.currentLevel / 100) * type.capacity).toFixed(0)} kg
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {type.capacity} kg
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Box>
+            ))}
+          </Box>
+        </CardContent>
+      </Card>
 
-        <Grid item xs={12} md={7}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Scheduled Maintenance
-              </Typography>
+      {/* Form and Table Side by Side */}
+      <Box sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+        gap: 3
+      }}>
+        {/* Schedule New Maintenance Form */}
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Schedule New Maintenance
+            </Typography>
 
-              <TableContainer component={Paper} variant="outlined" sx={{ mt: 2 }}>
-                <Table>
-                  <TableHead>
+            <Box sx={{ mt: 3 }}>
+              <FormControl fullWidth sx={{ mb: 3 }}>
+                <InputLabel>Waste Container</InputLabel>
+                <Select
+                  value={selectedWasteType}
+                  label="Waste Container"
+                  onChange={(e) => setSelectedWasteType(e.target.value)}
+                >
+                  {facilityWasteTypes.map(type => (
+                    <MenuItem key={type.id} value={type.id}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: '50%',
+                            backgroundColor: type.color,
+                          }}
+                        />
+                        {type.name} ({type.currentLevel}% full)
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <TextField
+                fullWidth
+                label="Start Date & Time"
+                type="datetime-local"
+                value={startDateTime}
+                onChange={(e) => setStartDateTime(e.target.value)}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                sx={{ mb: 3 }}
+              />
+
+              <TextField
+                fullWidth
+                label="Duration (hours)"
+                type="number"
+                value={duration}
+                onChange={(e) => setDuration(parseFloat(e.target.value) || 2)}
+                inputProps={{ min: 0.5, max: 8, step: 0.5 }}
+                sx={{ mb: 3 }}
+              />
+
+              <Alert severity="info" sx={{ mb: 3 }}>
+                During maintenance, customer bookings will be blocked for this time period.
+              </Alert>
+
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                fullWidth
+                startIcon={<AddIcon />}
+                onClick={handleScheduleMaintenance}
+              >
+                Schedule Maintenance
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Scheduled Maintenance Table */}
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Scheduled Maintenance
+            </Typography>
+
+            <TableContainer component={Paper} variant="outlined" sx={{ mt: 2 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Container</TableCell>
+                    <TableCell>Start Time</TableCell>
+                    <TableCell>End Time</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {maintenanceSlots.length === 0 ? (
                     <TableRow>
-                      <TableCell>Container</TableCell>
-                      <TableCell>Start Time</TableCell>
-                      <TableCell>End Time</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell align="right">Actions</TableCell>
+                      <TableCell colSpan={5} align="center">
+                        <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>
+                          No maintenance slots scheduled
+                        </Typography>
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {maintenanceSlots.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} align="center">
-                          <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>
-                            No maintenance slots scheduled
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      maintenanceSlots
-                        .sort((a, b) => a.start.getTime() - b.start.getTime())
-                        .map(slot => {
-                          const wasteType = facilityWasteTypes.find(w => w.id === slot.wasteTypeId);
-                          return (
-                            <TableRow key={slot.id}>
-                              <TableCell>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                  <Box
-                                    sx={{
-                                      width: 16,
-                                      height: 16,
-                                      borderRadius: '50%',
-                                      backgroundColor: wasteType?.color,
-                                    }}
-                                  />
-                                  {wasteType?.name}
-                                </Box>
-                              </TableCell>
-                              <TableCell>
-                                {format(slot.start, 'MMM dd, yyyy HH:mm')}
-                              </TableCell>
-                              <TableCell>
-                                {format(slot.end, 'MMM dd, yyyy HH:mm')}
-                              </TableCell>
-                              <TableCell>
-                                <Chip
-                                  label={slot.status}
-                                  size="small"
-                                  color={getStatusColor(slot.status)}
+                  ) : (
+                    maintenanceSlots
+                      .sort((a, b) => a.start.getTime() - b.start.getTime())
+                      .map(slot => {
+                        const wasteType = facilityWasteTypes.find(w => w.id === slot.wasteTypeId);
+                        return (
+                          <TableRow key={slot.id}>
+                            <TableCell>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box
+                                  sx={{
+                                    width: 16,
+                                    height: 16,
+                                    borderRadius: '50%',
+                                    backgroundColor: wasteType?.color,
+                                  }}
                                 />
-                              </TableCell>
-                              <TableCell align="right">
-                                <IconButton
-                                  size="small"
-                                  color="error"
-                                  onClick={() => handleDeleteSlot(slot.id)}
-                                  disabled={slot.status === 'completed'}
-                                >
-                                  <DeleteIcon />
-                                </IconButton>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+                                {wasteType?.name}
+                              </Box>
+                            </TableCell>
+                            <TableCell>
+                              {format(slot.start, 'MMM dd, yyyy HH:mm')}
+                            </TableCell>
+                            <TableCell>
+                              {format(slot.end, 'MMM dd, yyyy HH:mm')}
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={slot.status}
+                                size="small"
+                                color={getStatusColor(slot.status)}
+                              />
+                            </TableCell>
+                            <TableCell align="right">
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleDeleteSlot(slot.id)}
+                                disabled={slot.status === 'completed'}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+      </Box>
     </Container>
   );
 }

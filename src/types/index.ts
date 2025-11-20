@@ -73,6 +73,10 @@ export interface RecyclingCenter {
   id: string;
   name: string;
   address: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
   slotDuration: number; // in minutes
   maxConcurrentVisitors: number;
   openingHours: OpeningHours[];

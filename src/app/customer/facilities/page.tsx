@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFacility } from '@/contexts/FacilityContext';
@@ -12,16 +13,27 @@ import {
   Button,
   Box,
   Chip,
+  ToggleButtonGroup,
+  ToggleButton,
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import RecyclingIcon from '@mui/icons-material/Recycling';
-import { useEffect } from 'react';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import MapIcon from '@mui/icons-material/Map';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the map component to avoid SSR issues
+const FacilityMap = dynamic(() => import('@/components/FacilityMap'), {
+  ssr: false,
+  loading: () => <Box sx={{ height: { xs: '400px', md: '600px' }, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading map...</Box>,
+});
 
 export default function CustomerFacilitiesPage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
   const { facilities, setSelectedFacility } = useFacility();
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -46,11 +58,36 @@ export default function CustomerFacilitiesPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
-        Select a Recycling Facility
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
+        <Typography variant="h4" component="h1">
+          Select a Recycling Facility
+        </Typography>
 
-      <Box sx={{
+        <ToggleButtonGroup
+          value={viewMode}
+          exclusive
+          onChange={(e, newMode) => newMode && setViewMode(newMode)}
+          aria-label="view mode"
+          size="small"
+        >
+          <ToggleButton value="list" aria-label="list view">
+            <ViewListIcon sx={{ mr: 1 }} />
+            List
+          </ToggleButton>
+          <ToggleButton value="map" aria-label="map view">
+            <MapIcon sx={{ mr: 1 }} />
+            Map
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
+      {viewMode === 'map' ? (
+        <FacilityMap
+          facilities={facilities}
+          onSelectFacility={handleSelectFacility}
+        />
+      ) : (
+        <Box sx={{
         display: 'grid',
         gridTemplateColumns: {
           xs: '1fr',
@@ -135,7 +172,8 @@ export default function CustomerFacilitiesPage() {
               </CardActions>
             </Card>
         ))}
-      </Box>
+        </Box>
+      )}
 
       <Box sx={{ mt: 4, textAlign: 'center' }}>
         <Button

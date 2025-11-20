@@ -8,7 +8,6 @@ import {
   Box,
   Card,
   CardContent,
-  Grid,
   Chip,
   Button,
   Paper,
@@ -18,6 +17,8 @@ import { format } from 'date-fns';
 import EventIcon from '@mui/icons-material/Event';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import RecyclingIcon from '@mui/icons-material/Recycling';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useAuth } from '@/contexts/AuthContext';
 import { bookingsApi, facilitiesApi } from '@/services/api';
 import { Booking, WasteType, RecyclingCenter } from '@/types';
@@ -27,7 +28,7 @@ export default function AppointmentsPage() {
   const params = useParams();
   const facilityId = params.facilityId as string;
   const { user, isAuthenticated } = useAuth();
-  const [facility, setFacility] = useState<RecyclingCenter | null>(null);
+  const [facilities, setFacilities] = useState<RecyclingCenter[]>([]);
   const [userBookings, setUserBookings] = useState<Booking[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
@@ -36,46 +37,29 @@ export default function AppointmentsPage() {
       router.push('/login');
       return;
     }
-    loadFacility();
-  }, [isAuthenticated, facilityId, router]);
+    loadData();
+  }, [isAuthenticated, router]);
 
-  useEffect(() => {
-    if (user && facility) {
-      loadBookings();
-    }
-  }, [user, facility]);
-
-  const loadFacility = async () => {
+  const loadData = async () => {
     try {
-      const facilityData = await facilitiesApi.getById(facilityId);
-      if (!facilityData) {
-        router.push('/customer/facilities');
-        return;
+      // Load all facilities
+      const allFacilities = await facilitiesApi.getAll();
+      setFacilities(allFacilities);
+
+      // Load all bookings for this customer
+      if (user) {
+        const allBookings = await bookingsApi.getByCustomerId(user.id);
+        setUserBookings(allBookings.sort((a, b) => a.timeSlot.start.getTime() - b.timeSlot.start.getTime()));
       }
-      setFacility(facilityData);
     } catch (error) {
-      console.error('Error loading facility:', error);
-      router.push('/customer/facilities');
-    }
-  };
-
-  const loadBookings = async () => {
-    if (!user || !facility) return;
-    
-    try {
-      // Get all bookings for this customer at this facility
-      const allBookings = await bookingsApi.getByCustomerId(user.id);
-      const facilityBookings = allBookings.filter(b => b.facilityId === facilityId);
-      setUserBookings(facilityBookings.sort((a, b) => a.timeSlot.start.getTime() - b.timeSlot.start.getTime()));
-    } catch (error) {
-      console.error('Error loading bookings:', error);
+      console.error('Error loading data:', error);
     }
   };
 
   const handleCancelBooking = async (bookingId: string) => {
     try {
       await bookingsApi.cancel(bookingId);
-      loadBookings(); // Reload bookings after cancellation
+      loadData(); // Reload data after cancellation
     } catch (error) {
       console.error('Error cancelling booking:', error);
     }
@@ -83,10 +67,14 @@ export default function AppointmentsPage() {
 
   const handleViewRoute = (booking: Booking) => {
     setSelectedBooking(booking);
-    router.push(`/customer/facility/${facilityId}/route?bookingId=${booking.id}`);
+    router.push(`/customer/facility/${booking.facilityId}/route?bookingId=${booking.id}`);
   };
 
-  if (!isAuthenticated || !user || !facility) {
+  const getFacilityForBooking = (booking: Booking): RecyclingCenter | undefined => {
+    return facilities.find(f => f.id === booking.facilityId);
+  };
+
+  if (!isAuthenticated || !user) {
     return null;
   }
 
@@ -105,116 +93,133 @@ export default function AppointmentsPage() {
     }
   };
 
-  // Calculate route for selected booking
-  const calculateRoute = (booking: Booking) => {
-    const wasteTypeIds = booking.wasteItems.map((item) => item.wasteTypeId);
-    const containers = facility.wasteTypes.filter((wt) => wasteTypeIds.includes(wt.id));
-    return containers.sort((a, b) => {
-      if (a.position.y !== b.position.y) return a.position.y - b.position.y;
-      return a.position.x - b.position.x;
-    });
-  };
-
-  const selectedRoute = selectedBooking ? calculateRoute(selectedBooking) : [];
-
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" component="h1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
+        <Typography variant="h4" component="h1" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <EventIcon /> My Appointments
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-          <LocationOnIcon sx={{ color: 'primary.main' }} />
-          <Typography variant="h6" color="primary">
-            {facility.name}
-          </Typography>
-        </Box>
-        <Typography variant="body2" color="text.secondary">
-          {facility.address}
-        </Typography>
         <Button
-          variant="text"
-          size="small"
+          variant="contained"
           onClick={() => router.push('/customer/facilities')}
-          sx={{ mt: 1 }}
+          sx={{ bgcolor: '#164656', '&:hover': { bgcolor: '#0d2f3a' } }}
         >
-          Change Facility
+          Book New Appointment
         </Button>
       </Box>
 
       {userBookings.length === 0 ? (
-        <Alert severity="info" sx={{ mt: 2 }}>
-          You don't have any appointments at this facility yet.{' '}
-          <Button color="inherit" onClick={() => router.push(`/customer/facility/${facilityId}/booking`)}>
+        <Alert severity="info">
+          You don't have any appointments yet.{' '}
+          <Button color="inherit" onClick={() => router.push('/customer/facilities')}>
             Book Now
           </Button>
         </Alert>
       ) : (
-        <Grid container spacing={3} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {userBookings.map((booking) => (
-                <Card key={booking.id}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                      <Box>
-                        <Typography variant="h6">
-                          {format(booking.timeSlot.start, 'EEEE, MMMM d, yyyy')}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {format(booking.timeSlot.start, 'HH:mm')} - {format(booking.timeSlot.end, 'HH:mm')}
-                        </Typography>
-                      </Box>
-                      <Chip
-                        label={booking.status.toUpperCase()}
-                        color={getStatusColor(booking.status) as any}
-                        size="small"
-                      />
-                    </Box>
+        <Box sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: '1fr',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
+          },
+          gap: 3,
+        }}>
+          {userBookings.map((booking) => {
+            const facility = getFacilityForBooking(booking);
+            if (!facility) return null;
 
-                    <Typography variant="subtitle2" gutterBottom>
-                      Waste Items:
+            return (
+              <Card key={booking.id} sx={{ display: 'flex', flexDirection: 'column' }}>
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                    <Box>
+                      <Typography variant="h6">
+                        {format(booking.timeSlot.start, 'EEEE, MMMM d, yyyy')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {format(booking.timeSlot.start, 'HH:mm')} - {format(booking.timeSlot.end, 'HH:mm')}
+                      </Typography>
+                    </Box>
+                    <Chip
+                      label={booking.status.toUpperCase()}
+                      color={getStatusColor(booking.status) as any}
+                      size="small"
+                    />
+                  </Box>
+
+                  {/* Facility Information */}
+                  <Box
+                    sx={{
+                      mb: 2,
+                      p: 1.5,
+                      bgcolor: '#f5f5f5',
+                      borderRadius: 1,
+                      borderLeft: '3px solid #164656'
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                      <LocationOnIcon sx={{ fontSize: 16, color: '#164656' }} />
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 600,
+                          color: '#164656',
+                          cursor: 'pointer',
+                          '&:hover': { textDecoration: 'underline' }
+                        }}
+                        onClick={() => router.push(`/customer/facility/${facility.id}/booking`)}
+                      >
+                        {facility.name}
+                      </Typography>
+                    </Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 2.5 }}>
+                      {facility.address}
                     </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                      {booking.wasteItems.map((item) => {
-                        const wasteType = facility.wasteTypes.find((wt) => wt.id === item.wasteTypeId);
-                        return (
-                          <Chip
-                            key={item.wasteTypeId}
-                            label={`${wasteType?.name}: ${item.amount} kg`}
-                            size="small"
-                            sx={{ bgcolor: wasteType?.color, color: 'white' }}
-                          />
-                        );
-                      })}
-                    </Box>
+                  </Box>
 
-                    <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Waste Items:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                    {booking.wasteItems.map((item) => {
+                      const wasteType = facility.wasteTypes.find((wt) => wt.id === item.wasteTypeId);
+                      return (
+                        <Chip
+                          key={item.wasteTypeId}
+                          label={`${wasteType?.name}: ${item.amount} kg`}
+                          size="small"
+                          sx={{ bgcolor: wasteType?.color, color: 'white' }}
+                        />
+                      );
+                    })}
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => handleViewRoute(booking)}
+                    >
+                      View Route
+                    </Button>
+                    {booking.status === 'pending' || booking.status === 'confirmed' ? (
                       <Button
                         variant="outlined"
+                        color="error"
                         size="small"
-                        onClick={() => handleViewRoute(booking)}
+                        startIcon={<DeleteIcon />}
+                        onClick={() => handleCancelBooking(booking.id)}
                       >
-                        View Route
+                        Cancel
                       </Button>
-                      {booking.status === 'pending' || booking.status === 'confirmed' ? (
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          size="small"
-                          startIcon={<DeleteIcon />}
-                          onClick={() => handleCancelBooking(booking.id)}
-                        >
-                          Cancel
-                        </Button>
-                      ) : null}
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
-          </Grid>
-        </Grid>
+                    ) : null}
+                  </Box>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </Box>
       )}
     </Container>
   );

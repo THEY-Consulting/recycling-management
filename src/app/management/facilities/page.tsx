@@ -8,7 +8,6 @@ import {
   Typography,
   Card,
   CardContent,
-  CardActions,
   Button,
   Box,
   Chip,
@@ -122,7 +121,7 @@ export default function ManagementFacilitiesPage() {
                 </Box>
               </CardContent>
 
-              <CardActions sx={{ p: 2, pt: 0, flexDirection: 'column', gap: 1 }}>
+              <Box sx={{ px: 2, pb: 2, pt: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Button
                   variant="contained"
                   fullWidth
@@ -145,7 +144,7 @@ export default function ManagementFacilitiesPage() {
                 >
                   Manage Maintenance
                 </Button>
-              </CardActions>
+              </Box>
             </Card>
         ))}
       </Box>
