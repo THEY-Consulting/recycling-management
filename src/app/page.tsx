@@ -1,7 +1,8 @@
 'use client';
 
-import { Container, Typography, Box, Card, CardContent, Button } from '@mui/material';
+import { Container, Typography, Box, Card, CardContent, Button, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import PersonIcon from '@mui/icons-material/Person';
 import BusinessIcon from '@mui/icons-material/Business';
 import RecyclingIcon from '@mui/icons-material/Recycling';
@@ -9,7 +10,23 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function Home() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, router]);
+
+  // Show loading while redirecting
+  if (!isAuthenticated) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 8 }}>

@@ -6,7 +6,6 @@ import {
   Container,
   Typography,
   Box,
-  Grid,
   Card,
   CardContent,
   Tabs,
@@ -170,79 +169,80 @@ export default function DashboardPage() {
       </Box>
 
       {/* Key Metrics */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography color="text.secondary" variant="body2">
-                    Current Visitors
-                  </Typography>
-                  <Typography variant="h4">
-                    {currentVisitors}
-                  </Typography>
-                </Box>
-                <PeopleIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3 }} />
+      <Box sx={{
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(4, 1fr)',
+        },
+        gap: 3,
+        mb: 4,
+      }}>
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography color="text.secondary" variant="body2">
+                  Current Visitors
+                </Typography>
+                <Typography variant="h4">
+                  {currentVisitors}
+                </Typography>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+              <PeopleIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3 }} />
+            </Box>
+          </CardContent>
+        </Card>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography color="text.secondary" variant="body2">
-                    Max Capacity
-                  </Typography>
-                  <Typography variant="h4">
-                    {facility.maxConcurrentVisitors}
-                  </Typography>
-                </Box>
-                <PeopleIcon sx={{ fontSize: 48, color: 'secondary.main', opacity: 0.3 }} />
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography color="text.secondary" variant="body2">
+                  Max Capacity
+                </Typography>
+                <Typography variant="h4">
+                  {facility.maxConcurrentVisitors}
+                </Typography>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+              <PeopleIcon sx={{ fontSize: 48, color: 'secondary.main', opacity: 0.3 }} />
+            </Box>
+          </CardContent>
+        </Card>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography color="text.secondary" variant="body2">
-                    Avg Waste Level
-                  </Typography>
-                  <Typography variant="h4">
-                    {avgWasteLevel.toFixed(0)}%
-                  </Typography>
-                </Box>
-                <DeleteIcon sx={{ fontSize: 48, color: avgWasteLevel > 70 ? 'error.main' : 'success.main', opacity: 0.3 }} />
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography color="text.secondary" variant="body2">
+                  Avg Waste Level
+                </Typography>
+                <Typography variant="h4">
+                  {avgWasteLevel.toFixed(0)}%
+                </Typography>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+              <DeleteIcon sx={{ fontSize: 48, color: avgWasteLevel > 70 ? 'error.main' : 'success.main', opacity: 0.3 }} />
+            </Box>
+          </CardContent>
+        </Card>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography color="text.secondary" variant="body2">
-                    Waste Types
-                  </Typography>
-                  <Typography variant="h4">
-                    {facilityWasteTypes.length}
-                  </Typography>
-                </Box>
-                <TrendingUpIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3 }} />
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography color="text.secondary" variant="body2">
+                  Waste Types
+                </Typography>
+                <Typography variant="h4">
+                  {facilityWasteTypes.length}
+                </Typography>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+              <TrendingUpIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.3 }} />
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
 
       {/* Container Status - Right after key metrics */}
       <Card sx={{ mt: 3 }}>

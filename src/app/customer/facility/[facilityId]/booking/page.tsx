@@ -148,7 +148,7 @@ export default function BookingPage() {
 
   const isSlotAvailable = (slot: TimeSlot, wasteToCheck: WasteItem[] = []): boolean => {
     // Check if slot is at capacity
-    if (slot.currentBookings >= slot.maxBookings) {
+    if (slot.currentBookings >= slot.maxCapacity) {
       return false;
     }
 
@@ -320,7 +320,7 @@ export default function BookingPage() {
                       .map(slot => {
                         const available = isSlotAvailable(slot, wasteItems);
                         const underMaintenance = isSlotUnderMaintenance(slot);
-                        const utilization = (slot.currentBookings / slot.maxBookings) * 100;
+                        const utilization = (slot.currentBookings / slot.maxCapacity) * 100;
 
                         return (
                           <Card
@@ -383,7 +383,7 @@ export default function BookingPage() {
                       .map(slot => {
                         const available = isSlotAvailable(slot, wasteItems);
                         const underMaintenance = isSlotUnderMaintenance(slot);
-                        const utilization = (slot.currentBookings / slot.maxBookings) * 100;
+                        const utilization = (slot.currentBookings / slot.maxCapacity) * 100;
 
                         return (
                           <Card
