@@ -277,7 +277,7 @@ export default function BookingPage() {
               Select Date & Time
             </Typography>
 
-              <FormControl sx={{ mb: 3, maxWidth: 400 }}>
+              <FormControl sx={{ mb: 3, minWidth: 300, maxWidth: 400 }}>
                 <InputLabel>Select Date</InputLabel>
                 <Select
                   value={selectedDate}

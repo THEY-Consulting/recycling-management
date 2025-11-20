@@ -10,7 +10,6 @@ import {
   CardContent,
   CardActions,
   Button,
-  Grid,
   Box,
   Chip,
 } from '@mui/material';
@@ -55,10 +54,17 @@ export default function ManagementFacilitiesPage() {
         Select a Facility to Manage
       </Typography>
 
-      <Grid container spacing={3}>
+      <Box sx={{
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          md: 'repeat(2, 1fr)',
+          lg: 'repeat(3, 1fr)',
+        },
+        gap: 3,
+      }}>
         {facilities.map((facility) => (
-          <Grid item xs={12} md={6} lg={4} key={facility.id}>
-            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Card key={facility.id} sx={{ display: 'flex', flexDirection: 'column' }}>
               <CardContent sx={{ flexGrow: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <RecyclingIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
@@ -141,9 +147,8 @@ export default function ManagementFacilitiesPage() {
                 </Button>
               </CardActions>
             </Card>
-          </Grid>
         ))}
-      </Grid>
+      </Box>
     </Container>
   );
 }

@@ -6,13 +6,8 @@ import {
   Container,
   Typography,
   Box,
-  Grid,
   Card,
   CardContent,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Chip,
   Paper,
   CircularProgress,
@@ -109,17 +104,13 @@ export default function RoutePage() {
           {facility.address}
         </Typography>
       </Box>
-      <Typography variant="body1" color="text.secondary" paragraph>
-        Select the waste types you're bringing to see your optimal route
-      </Typography>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Facility Layout
-              </Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Card sx={{ width: '100%' }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Facility Layout
+            </Typography>
               
               <Paper
                 sx={{
@@ -283,59 +274,9 @@ export default function RoutePage() {
               </Paper>
             </CardContent>
           </Card>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Select Waste Types
-              </Typography>
-              <FormControl fullWidth>
-                <InputLabel>Waste Types</InputLabel>
-                <Select
-                  multiple
-                  value={selectedWasteTypes}
-                  label="Waste Types"
-                  onChange={(e) => setSelectedWasteTypes(e.target.value as string[])}
-                  renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {selected.map((value) => {
-                        const wasteType = facility.wasteTypes.find(w => w.id === value);
-                        return (
-                          <Chip
-                            key={value}
-                            label={wasteType?.name}
-                            size="small"
-                            sx={{ backgroundColor: wasteType?.color, color: 'white' }}
-                          />
-                        );
-                      })}
-                    </Box>
-                  )}
-                >
-                  {facility.wasteTypes.map((type) => (
-                    <MenuItem key={type.id} value={type.id}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box
-                          sx={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: '50%',
-                            backgroundColor: type.color,
-                          }}
-                        />
-                        {type.name}
-                      </Box>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </CardContent>
-          </Card>
 
           {route.length > 0 && (
-            <Card sx={{ mt: 2 }}>
+            <Card sx={{ width: '100%' }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   Route Instructions
@@ -376,8 +317,7 @@ export default function RoutePage() {
               </CardContent>
             </Card>
           )}
-        </Grid>
-      </Grid>
+        </Box>
     </Container>
   );
 }
