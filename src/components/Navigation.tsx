@@ -36,7 +36,7 @@ export default function Navigation() {
 
   const customerPages = currentFacilityId ? [
     { name: 'Book Appointment', path: `/customer/facility/${currentFacilityId}/booking` },
-    { name: 'My Appointments', path: `/customer/facility/${currentFacilityId}/appointments` },
+    { name: 'My Appointments', path: `/customer/appointments` },
   ] : [];
 
   const managementPages = currentFacilityId ? [
@@ -221,7 +221,7 @@ export default function Navigation() {
                   <MenuItem onClick={() => handleNavigate('/customer/profile')}>
                     <Typography textAlign="center">Profile</Typography>
                   </MenuItem>
-                  <MenuItem onClick={() => handleNavigate(currentFacilityId ? `/customer/facility/${currentFacilityId}/appointments` : '/customer/facilities')}>
+                  <MenuItem onClick={() => handleNavigate('/customer/appointments')}>
                     <Typography textAlign="center">My Appointments</Typography>
                   </MenuItem>
                   <MenuItem onClick={handleLogout}>
