@@ -11,26 +11,38 @@ import {
   Container,
   Button,
   MenuItem,
+  Avatar,
+  Tooltip,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import RecyclingIcon from '@mui/icons-material/Recycling';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
-
-const customerPages = [
-  { name: 'Book Appointment', path: '/customer/booking' },
-  { name: 'My Route', path: '/customer/route' },
-];
-
-const managementPages = [
-  { name: 'Dashboard', path: '/management/dashboard' },
-  { name: 'Schedule Maintenance', path: '/management/maintenance' },
-];
+import { useAuth } from '@/contexts/AuthContext';
+import { useFacility } from '@/contexts/FacilityContext';
 
 export default function Navigation() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const router = useRouter();
   const pathname = usePathname();
+  const { user, logout, isAuthenticated } = useAuth();
+  const { selectedFacility } = useFacility();
+
+  // Extract facility ID from URL if present
+  const facilityIdMatch = pathname?.match(/\/facility\/([^\/]+)/);
+  const currentFacilityId = facilityIdMatch ? facilityIdMatch[1] : selectedFacility?.id;
+
+  const customerPages = currentFacilityId ? [
+    { name: 'Book Appointment', path: `/customer/facility/${currentFacilityId}/booking` },
+    { name: 'My Appointments', path: `/customer/facility/${currentFacilityId}/appointments` },
+  ] : [];
+
+  const managementPages = currentFacilityId ? [
+    { name: 'Dashboard', path: `/management/facility/${currentFacilityId}/dashboard` },
+    { name: 'Schedule Maintenance', path: `/management/facility/${currentFacilityId}/maintenance` },
+  ] : [];
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -40,12 +52,28 @@ export default function Navigation() {
     setAnchorElNav(null);
   };
 
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
   const handleNavigate = (path: string) => {
     router.push(path);
     handleCloseNavMenu();
+    handleCloseUserMenu();
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleCloseUserMenu();
+    router.push('/login');
   };
 
   const isManagementPath = pathname?.startsWith('/management');
+  const isLoginPath = pathname === '/login';
   const pages = isManagementPath ? managementPages : customerPages;
 
   return (
@@ -150,14 +178,66 @@ export default function Navigation() {
             ))}
           </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
-            <Button
-              color="secondary"
-              variant="contained"
-              onClick={() => handleNavigate(isManagementPath ? '/customer/booking' : '/management/dashboard')}
-            >
-              {isManagementPath ? 'Customer View' : 'Management View'}
-            </Button>
+          <Box sx={{ flexGrow: 0, display: 'flex', gap: 2, alignItems: 'center' }}>
+            {!isLoginPath && isAuthenticated && user?.role === 'management' && (
+              <Button
+                color="secondary"
+                variant="contained"
+                onClick={() => handleNavigate(isManagementPath ? '/customer/booking' : '/management/dashboard')}
+                sx={{ display: { xs: 'none', sm: 'block' } }}
+              >
+                {isManagementPath ? 'Customer View' : 'Management View'}
+              </Button>
+            )}
+
+            {!isLoginPath && isAuthenticated ? (
+              <>
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar sx={{ bgcolor: 'secondary.main' }}>
+                      <AccountCircleIcon />
+                    </Avatar>
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: '45px' }}
+                  id="menu-appbar-user"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  <MenuItem disabled>
+                    <Typography textAlign="center">{user?.name}</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={() => handleNavigate('/customer/profile')}>
+                    <Typography textAlign="center">Profile</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={() => handleNavigate(currentFacilityId ? `/customer/facility/${currentFacilityId}/appointments` : '/customer/facilities')}>
+                    <Typography textAlign="center">My Appointments</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout}>
+                    <Typography textAlign="center">Logout</Typography>
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : !isLoginPath ? (
+              <Button
+                color="secondary"
+                variant="contained"
+                onClick={() => handleNavigate('/login')}
+              >
+                Login
+              </Button>
+            ) : null}
           </Box>
         </Toolbar>
       </Container>

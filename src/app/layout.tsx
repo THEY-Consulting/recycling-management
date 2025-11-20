@@ -4,6 +4,8 @@ import "./globals.css";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { FacilityProvider } from "@/contexts/FacilityContext";
 import { Box } from "@mui/material";
 
 const roboto = Roboto({
@@ -26,19 +28,23 @@ export default function RootLayout({
     <html lang="en">
       <body className={roboto.className}>
         <ThemeRegistry>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              minHeight: '100vh',
-            }}
-          >
-            <Navigation />
-            <Box component="main" sx={{ flexGrow: 1 }}>
-              {children}
-            </Box>
-            <Footer />
-          </Box>
+          <AuthProvider>
+            <FacilityProvider>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  minHeight: '100vh',
+                }}
+              >
+                <Navigation />
+                <Box component="main" sx={{ flexGrow: 1 }}>
+                  {children}
+                </Box>
+                <Footer />
+              </Box>
+            </FacilityProvider>
+          </AuthProvider>
         </ThemeRegistry>
       </body>
     </html>

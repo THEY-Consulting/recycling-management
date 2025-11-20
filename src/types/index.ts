@@ -34,6 +34,7 @@ export interface WasteItem {
 
 export interface Booking {
   id: string;
+  facilityId: string;
   customerId: string;
   customerName: string;
   timeSlot: TimeSlot;
@@ -44,6 +45,7 @@ export interface Booking {
 
 export interface MaintenanceSlot {
   id: string;
+  facilityId: string;
   start: Date;
   end: Date;
   wasteTypeId: string;
@@ -51,6 +53,7 @@ export interface MaintenanceSlot {
 }
 
 export interface FacilityStats {
+  facilityId: string;
   date: Date;
   totalVisitors: number;
   currentVisitors: number;
@@ -58,6 +61,7 @@ export interface FacilityStats {
 }
 
 export interface WasteStats {
+  facilityId: string;
   wasteTypeId: string;
   date: Date;
   level: number; // percentage
@@ -85,5 +89,16 @@ export interface Route {
   wasteTypeId: string;
   order: number;
   position: { x: number; y: number };
+}
+
+export interface User {
+  id: string;
+  email: string;
+  password: string; // In production, this would be hashed
+  name: string;
+  role: 'customer' | 'management';
+  licensePlate?: string;
+  phone?: string;
+  createdAt: Date;
 }
 
